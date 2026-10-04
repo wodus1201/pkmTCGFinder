@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { setNavDir } from "@/lib/nav";
 import type { Post } from "@/lib/db";
 import { loginUrl, useMe } from "@/lib/collection";
 import { Search, Underline } from "../ui";
@@ -20,19 +22,12 @@ export default function MarketPage() {
   const [q, setQ] = useState("");
   const [list, setList] = useState<Item[]>([]);
   const [writing, setWriting] = useState(false);
-  const [open, setOpen] = useState<Item | null>(null);
   const { user } = useMe();
 
   const load = () => fetch("/api/market").then((r) => r.json()).then((d) => setList(d.posts));
   useEffect(() => {
     load();
   }, []);
-
-  async function remove(id: string) {
-    await fetch("/api/market", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
-    setOpen(null);
-    load();
-  }
 
   const words = q.trim().toLowerCase();
   const shown = list.filter(
@@ -59,7 +54,7 @@ export default function MarketPage() {
       <ul className="mt-4 grid grid-cols-2 overflow-hidden rounded-xl border border-line [&>li:nth-child(odd)]:border-r [&>li]:border-b [&>li]:border-line">
         {shown.map((p) => (
           <li key={p.id}>
-            <button onClick={() => setOpen(p)} className="block w-full p-3 text-left">
+            <Link href={`/market/${p.id}`} onClick={() => setNavDir("forward")} className="block w-full p-3 text-left">
               <span className="flex items-center justify-between text-[13px]">
                 <span className="truncate text-ink2">{p.mine ? "내 글" : (p.author ?? "") + " · " + ago(p.createdAt)}</span>
                 <span className={`font-bold ${p.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{p.kind === "sell" ? "판매" : "구매"}</span>
@@ -75,43 +70,11 @@ export default function MarketPage() {
               <span className="mt-1 flex items-center justify-between">
                 <span className="truncate text-[16px] font-extrabold">{won(p.price)}</span>
               </span>
-            </button>
+            </Link>
           </li>
         ))}
       </ul>
       <div className="h-6" />
-
-      {open && (
-        <div className="fixed inset-0 z-[1100] flex items-end justify-center bg-black/40" onClick={() => setOpen(null)}>
-          <div className="w-full max-w-md rounded-t-3xl bg-white p-5 pb-[calc(20px+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line" />
-            <div className="flex gap-4">
-              {open.card?.image && <img src={img(open.card.image, 300)} alt="" className="w-28 rounded-lg" />}
-              <div className="min-w-0">
-                <p className={`text-[13px] font-bold ${open.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{open.kind === "sell" ? "팝니다" : "삽니다"}</p>
-                <p className="text-[18px] font-bold">{open.title}</p>
-                {open.card && <p className="text-[13px] text-sub">{open.card.name}</p>}
-                <p className="text-[13px] text-sub">
-                  {open.grade ?? "A급"} {open.qty ?? 1}장 · {ago(open.createdAt)}
-                </p>
-                <p className="mt-2 text-[22px] font-extrabold">{won(open.price)}</p>
-              </div>
-            </div>
-            {open.body && <p className="mt-4 whitespace-pre-wrap rounded-xl bg-soft p-4 text-[14px]">{open.body}</p>}
-            {open.contact && (
-              <p className="mt-3 text-[14px]">
-                <span className="text-sub">연락 방법 </span>
-                <span className="select-all font-semibold">{open.contact}</span>
-              </p>
-            )}
-            {open.mine && (
-              <button onClick={() => remove(open.id)} className="mt-4 w-full rounded-xl bg-soft py-3 text-[15px] font-semibold text-red-500">
-                글 삭제
-              </button>
-            )}
-          </div>
-        </div>
-      )}
 
       {writing && (
         <Compose

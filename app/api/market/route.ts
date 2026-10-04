@@ -37,6 +37,7 @@ export async function POST(req: Request) {
     createdAt: Date.now(),
     owner,
     author: user.name,
+    authorImage: user.image,
   };
   await update((db) => {
     db.posts = [...(db.posts ?? []), post];

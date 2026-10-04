@@ -21,6 +21,7 @@ export type Post = {
   createdAt: number;
   owner: string; // 글쓴이 카카오 계정 ID. 본인 글 삭제 확인용이라 목록 응답에는 넣지 않는다.
   author?: string; // 글쓴이 닉네임
+  authorImage?: string;
 };
 export type Account = { id: string; name: string; image: string; createdAt: number; lastLogin: number };
 type Db = {
