@@ -11,5 +11,5 @@ export default async function Page({ params }: PageProps<"/dex/[setId]/[cardId]"
   if (!set || !card) notFound();
   const i = set.cards.indexOf(card);
   const others = [...set.cards.slice(i + 1), ...set.cards.slice(0, i)].slice(0, 12);
-  return <CardView card={card} setId={set.id} meta={setMeta(set)} others={others} />;
+  return <CardView card={card} setId={set.id} meta={setMeta(set)} others={others} order={set.cards.map((c) => c.id)} />;
 }

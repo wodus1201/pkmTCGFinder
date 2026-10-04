@@ -48,11 +48,11 @@ export default function DexList({ sets }: { sets: SetSummary[] }) {
                 {list.map((x) => (
                   <li key={x.id}>
                     <Link href={`/dex/${x.id}`} className="block overflow-hidden rounded-xl border border-line">
-                      <div className="flex h-24 items-center justify-center px-5">
-                        {x.symbol ? (
-                          <img src={x.symbol} alt="" className="max-h-10 max-w-[60%] object-contain" />
+                      <div className="flex h-36 items-center justify-center overflow-hidden px-3 py-2">
+                        {x.pack ? (
+                          <img src={x.pack} alt="" className="max-h-full max-w-full object-contain" loading="lazy" />
                         ) : (
-                          <img src={`${x.cover}?w=120`} alt="" className="max-h-20 rounded" />
+                          <img src={`${x.cover}?w=200`} alt="" className="h-full rounded-md object-contain" loading="lazy" />
                         )}
                       </div>
                       <div className="border-t border-line bg-soft px-4 py-3">

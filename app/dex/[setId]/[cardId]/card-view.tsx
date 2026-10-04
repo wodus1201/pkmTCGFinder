@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import type { Card } from "@/lib/cards";
 import { useCollection, usePrices, won } from "@/lib/collection";
 import { Back, CardTile, Underline } from "../../../ui";
@@ -25,12 +26,49 @@ export default function CardView({
   setId,
   meta,
   others,
+  order: initialOrder,
 }: {
   card: Card;
   setId: string;
   meta: { series: string; code: string; short: string };
   others: Card[];
+  order: string[];
 }) {
+  const router = useRouter();
+  const [order, setOrder] = useState(initialOrder);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("cardOrder") || "null");
+      if (saved?.setId === setId && saved.ids.includes(card.id)) setOrder(saved.ids);
+    } catch {}
+  }, [setId, card.id]);
+  const at = order.indexOf(card.id);
+  const prev = at > 0 ? order[at - 1] : null;
+  const next = at >= 0 && at < order.length - 1 ? order[at + 1] : null;
+  const go = (id: string | null) => id && router.replace(`/dex/${setId}/${id}`, { scroll: false });
+  useEffect(() => {
+    for (const id of [prev, next]) if (id) router.prefetch(`/dex/${setId}/${id}`);
+  }, [prev, next, setId, router]);
+
+  // 카드 이미지를 좌우로 밀면 이전/다음 카드
+  const touch = useRef<{ x: number; y: number } | null>(null);
+  const [drag, setDrag] = useState(0);
+  const swipe = {
+    onTouchStart: (e: React.TouchEvent) => {
+      touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    },
+    onTouchMove: (e: React.TouchEvent) => {
+      if (!touch.current) return;
+      const dx = e.touches[0].clientX - touch.current.x;
+      if (Math.abs(dx) > Math.abs(e.touches[0].clientY - touch.current.y)) setDrag(dx);
+    },
+    onTouchEnd: () => {
+      if (drag < -60) go(next);
+      else if (drag > 60) go(prev);
+      setDrag(0);
+      touch.current = null;
+    },
+  };
   const { owned, setCount } = useCollection();
   const price = usePrices([setId])[card.id];
   const count = owned[card.id] ?? 0;
@@ -82,7 +120,28 @@ export default function CardView({
 
       {tab === "카드정보" ? (
         <>
-          <img src={`${card.image}?w=640`} alt={card.name} className="mx-auto mt-6 w-[78%] rounded-2xl shadow-lg" />
+          <div className="relative mt-6 select-none" {...swipe}>
+            <img
+              src={`${card.image}?w=640`}
+              alt={card.name}
+              draggable={false}
+              style={{ transform: `translateX(${drag}px) rotate(${drag / 40}deg)`, transition: drag ? "none" : "transform .2s" }}
+              className="mx-auto w-[78%] rounded-2xl shadow-lg"
+            />
+            {prev && (
+              <button onClick={() => go(prev)} aria-label="이전 카드" className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow">
+                ‹
+              </button>
+            )}
+            {next && (
+              <button onClick={() => go(next)} aria-label="다음 카드" className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow">
+                ›
+              </button>
+            )}
+          </div>
+          <p className="mt-3 text-center text-[13px] text-faint">
+            {at + 1} / {order.length} · 옆으로 밀어서 넘기기
+          </p>
           <dl className="mt-6 border-t border-line">
             {rows.map(([k, v]) => (
               <div key={k} className="flex items-center justify-between border-b border-line py-4 text-[15px]">

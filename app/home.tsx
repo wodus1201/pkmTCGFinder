@@ -75,7 +75,7 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
         const pct = Math.round((have / s.total) * 100);
         return (
           <Link key={s.id} href={`/dex/${s.id}`} className="flex items-center gap-3 rounded-3xl bg-white p-4">
-            <img src={`${s.cover}?w=120`} alt="" className="h-14 w-10 rounded object-cover" />
+            <img src={s.pack || `${s.cover}?w=120`} alt="" className="h-14 w-10 rounded object-contain" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[15px] font-bold">{s.short}</p>
               <p className="text-[13px] text-sub">

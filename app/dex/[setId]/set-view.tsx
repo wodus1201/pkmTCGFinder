@@ -7,21 +7,36 @@ import { Progress } from "../../card-sheet";
 import { Back, CardTile, Chips, Search } from "../../ui";
 
 const RARITY_ORDER = ["C", "U", "R", "RR", "RRR", "AR", "SR", "SAR", "UR", "MUR", "ACE", "PR"];
+const rank = (r: string) => (RARITY_ORDER.indexOf(r) + 99) % 99;
+const SORTS = ["도감순", "가격 높은순", "가격 낮은순", "레어도 높은순", "이름순"] as const;
 
 export default function SetView({ set, meta }: { set: CardSet; meta: { series: string; code: string; short: string } }) {
   const { owned } = useCollection();
   const prices = usePrices([set.id]);
   const rarities = [...new Set(set.cards.map((c) => c.rarity).filter(Boolean))].sort(
-    (a, b) => ((RARITY_ORDER.indexOf(a) + 99) % 99) - ((RARITY_ORDER.indexOf(b) + 99) % 99),
+    (a, b) => rank(a) - rank(b),
   );
   const [rarity, setRarity] = useState("전체");
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState<(typeof SORTS)[number]>("도감순");
   const have = set.cards.filter((c) => owned[c.id]).length;
   const value = set.cards.reduce((sum, c) => sum + (owned[c.id] ?? 0) * (prices[c.id] ?? 0), 0);
   const words = q.trim().toLowerCase();
-  const cards = set.cards.filter(
-    (c) => (rarity === "전체" || c.rarity === rarity) && (!words || `${c.name} ${c.number}`.toLowerCase().includes(words)),
-  );
+  const cards = set.cards
+    .filter((c) => (rarity === "전체" || c.rarity === rarity) && (!words || `${c.name} ${c.number}`.toLowerCase().includes(words)))
+    .sort((a, b) => {
+      if (sort === "가격 높은순") return (prices[b.id] ?? -1) - (prices[a.id] ?? -1);
+      if (sort === "가격 낮은순") return (prices[a.id] ?? Infinity) - (prices[b.id] ?? Infinity);
+      if (sort === "레어도 높은순") return rank(b.rarity) - rank(a.rarity) || a.number.localeCompare(b.number);
+      if (sort === "이름순") return a.name.localeCompare(b.name, "ko");
+      return a.number.localeCompare(b.number);
+    });
+  // 카드 상세에서 좌우로 넘길 때 지금 보이는 순서를 따른다.
+  const remember = () => {
+    try {
+      sessionStorage.setItem("cardOrder", JSON.stringify({ setId: set.id, ids: cards.map((c) => c.id) }));
+    } catch {}
+  };
 
   return (
     <main className="px-5 pt-3">
@@ -55,11 +70,22 @@ export default function SetView({ set, meta }: { set: CardSet; meta: { series: s
         <Chips items={["전체", ...rarities]} value={rarity} onChange={setRarity} />
       </div>
 
-      <div className="mt-6 flex items-baseline justify-between">
-        <h2 className="text-[17px] font-bold">수록 카드</h2>
-        <span className="text-sm text-sub">{cards.length}장</span>
+      <div className="mt-6 flex items-center justify-between">
+        <h2 className="text-[17px] font-bold">
+          수록 카드 <span className="text-[15px] font-medium text-sub">{cards.length}장</span>
+        </h2>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as (typeof SORTS)[number])}
+          className="rounded-lg border border-line bg-white px-2 py-1.5 text-[14px] font-medium text-ink2 outline-none"
+          aria-label="정렬"
+        >
+          {SORTS.map((o) => (
+            <option key={o}>{o}</option>
+          ))}
+        </select>
       </div>
-      <ul className="mt-3 grid grid-cols-3 gap-x-3 gap-y-5 pb-6">
+      <ul className="mt-3 grid grid-cols-3 gap-x-3 gap-y-5 pb-6" onClickCapture={remember}>
         {cards.map((c) => (
           <li key={c.id}>
             <CardTile

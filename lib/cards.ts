@@ -2,7 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import type { Card, CardSet } from "@/scripts/crawl-cards";
 
 export type { Card, CardSet };
-export type SetSummary = Omit<CardSet, "cards"> & { total: number; cover: string; series: string; code: string; short: string };
+export type SetSummary = Omit<CardSet, "cards"> & { total: number; cover: string; pack: string; series: string; code: string; short: string };
 
 const SERIES: Record<string, string> = { MEGA: "메가진화", SV: "스칼렛&바이올렛", S: "소드&실드", SM: "썬&문" };
 
@@ -34,15 +34,16 @@ export async function allSets(): Promise<CardSet[]> {
   }
 }
 
-export const summarize = (s: CardSet): SetSummary => ({
-  id: s.id,
-  name: s.name,
-  year: s.year,
-  symbol: s.symbol,
-  total: s.cards.length,
-  cover: s.cards[0]?.image ?? "",
-  ...setMeta(s),
-});
+const SHOWY = ["MUR", "UR", "SAR", "SR", "AR", "RR"];
+/** 세트를 대표할 카드: 가장 화려한 레어도의 첫 카드 */
+const showcase = (s: CardSet) =>
+  (SHOWY.map((r) => s.cards.find((c) => c.rarity === r)).find(Boolean) ?? s.cards[0])?.image ?? "";
+
+/** packs: lib/covers.ts의 「이름」 → 한글판 패키지 이미지 */
+export function summarize(s: CardSet, packs: Record<string, string> = {}): SetSummary {
+  const meta = setMeta(s);
+  return { id: s.id, name: s.name, year: s.year, symbol: s.symbol, total: s.cards.length, cover: showcase(s), pack: packs[meta.short] ?? "", ...meta };
+}
 
 export const thumb = (image: string, w = 300) => `${image}?w=${w}`;
 
