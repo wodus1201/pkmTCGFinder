@@ -19,12 +19,14 @@ export default function CardSheet({
   card,
   setName,
   count,
+  price,
   onCount,
   onClose,
 }: {
   card: Card;
   setName?: string;
   count: number;
+  price?: number;
   onCount: (n: number) => void;
   onClose: () => void;
 }) {
@@ -41,6 +43,8 @@ export default function CardSheet({
           {setName ? `${setName} · ` : ""}
           {card.number} · {card.rarity}
         </p>
+        <p className="mt-2 text-2xl font-extrabold">{price ? `${price.toLocaleString()}원` : "시세 없음"}</p>
+        {price ? <p className="text-xs text-sub">일본판 유유테이 판매가를 오늘 환율로 환산한 값이에요.</p> : null}
         <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
           <div className="rounded-xl bg-soft p-3">
             <dt className="text-xs text-sub">카드 종류</dt>

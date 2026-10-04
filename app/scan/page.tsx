@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Card } from "@/lib/cards";
-import { useCollection } from "@/lib/collection";
+import { useCollection, usePrices, won } from "@/lib/collection";
 import CardSheet from "../card-sheet";
 
 type Hit = Card & { setName: string };
@@ -13,6 +13,7 @@ export default function ScanPage() {
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
   const [open, setOpen] = useState<Hit | null>(null);
+  const prices = usePrices(hits.map((h) => h.setId));
 
   useEffect(() => {
     if (!q.trim()) return setHits([]);
@@ -48,12 +49,13 @@ export default function ScanPage() {
               <span className="block truncate text-[10px] text-sub">
                 {c.number} · {c.setName}
               </span>
+              {prices[c.id] && <span className="block text-[11px] font-semibold">{won(prices[c.id])}</span>}
             </button>
           </li>
         ))}
       </ul>
       {open && (
-        <CardSheet card={open} setName={open.setName} count={owned[open.id] ?? 0} onCount={(n) => setCount(open.id, n)} onClose={() => setOpen(null)} />
+        <CardSheet card={open} setName={open.setName} count={owned[open.id] ?? 0} price={prices[open.id]} onCount={(n) => setCount(open.id, n)} onClose={() => setOpen(null)} />
       )}
     </main>
   );

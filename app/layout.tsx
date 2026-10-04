@@ -21,7 +21,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="antialiased">
-        <div className="mx-auto min-h-dvh max-w-md bg-white pb-[calc(76px+env(safe-area-inset-bottom))]">{children}</div>
+        <div className="mx-auto min-h-dvh max-w-md bg-white pb-[calc(96px+env(safe-area-inset-bottom))]">{children}</div>
         <TabBar />
       </body>
     </html>

@@ -13,6 +13,8 @@ export type Post = {
   kind: "sell" | "buy";
   title: string;
   price: number | null;
+  grade: string; // A급, B급, PSA 10 등
+  qty: number;
   body: string;
   contact: string;
   card: { id: string; name: string; image: string } | null;

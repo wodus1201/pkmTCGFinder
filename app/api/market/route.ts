@@ -25,6 +25,8 @@ export async function POST(req: Request) {
     kind,
     title,
     price: Number.isFinite(price) && price >= 0 ? Math.round(price) : null,
+    grade: str(b.grade, 20) || "A급",
+    qty: Math.min(Math.max(Math.round(Number(b.qty)) || 1, 1), 999),
     body: str(b.body, 2000),
     contact: str(b.contact, 100),
     card,

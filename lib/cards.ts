@@ -2,7 +2,19 @@ import { readFile, stat } from "node:fs/promises";
 import type { Card, CardSet } from "@/scripts/crawl-cards";
 
 export type { Card, CardSet };
-export type SetSummary = Omit<CardSet, "cards"> & { total: number; cover: string };
+export type SetSummary = Omit<CardSet, "cards"> & { total: number; cover: string; series: string; code: string; short: string };
+
+const SERIES: Record<string, string> = { MEGA: "메가진화", SV: "스칼렛&바이올렛", S: "소드&실드", SM: "썬&문" };
+
+/** 이미지 경로(.../wmimages/SV/SV9/...)에서 시리즈와 세트 코드를 읽는다. */
+export function setMeta(s: CardSet) {
+  const [, folder = "", code = ""] = s.cards[0]?.image.match(/wmimages\/([^/]+)\/([^/]+)\//) ?? [];
+  return {
+    series: SERIES[folder] ?? folder,
+    code,
+    short: s.name.match(/「(.+)」/)?.[1] ?? s.name, // "스칼렛&바이올렛 확장팩 「배틀파트너즈」" → "배틀파트너즈"
+  };
+}
 
 const FILE = "data/cards.json";
 let cache: { mtime: number; sets: CardSet[] } | null = null;
@@ -29,6 +41,7 @@ export const summarize = (s: CardSet): SetSummary => ({
   symbol: s.symbol,
   total: s.cards.length,
   cover: s.cards[0]?.image ?? "",
+  ...setMeta(s),
 });
 
 export const thumb = (image: string, w = 300) => `${image}?w=${w}`;

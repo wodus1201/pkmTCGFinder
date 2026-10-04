@@ -80,6 +80,9 @@ export default function MarketPage() {
               </p>
               <p className="truncate font-semibold">{p.title}</p>
               {p.card && <p className="truncate text-xs text-sub">{p.card.name}</p>}
+              <p className="text-xs text-sub">
+                {p.grade ?? "A급"} {p.qty ?? 1}장
+              </p>
               <p className="mt-0.5 font-bold">{won(p.price)}</p>
               {p.body && <p className="mt-1 line-clamp-2 text-sm text-sub">{p.body}</p>}
               {p.contact && <p className="mt-1 text-xs text-sub">연락: {p.contact}</p>}
@@ -115,6 +118,8 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
   const [kind, setKind] = useState<"sell" | "buy">("sell");
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
+  const [grade, setGrade] = useState("A급");
+  const [qty, setQty] = useState("1");
   const [body, setBody] = useState("");
   const [contact, setContact] = useState("");
   const [q, setQ] = useState("");
@@ -141,6 +146,8 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
         kind,
         title: title || card?.name,
         price: price === "" ? null : Number(price),
+        grade,
+        qty: Number(qty),
         body,
         contact,
         card: card && { id: card.id, name: `${card.name} (${card.setName} ${card.number})`, image: card.image },
@@ -200,6 +207,14 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
         )}
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={card ? `제목 (비우면 ${card.name})` : "제목"} className={input} />
         <input value={price} onChange={(e) => setPrice(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="가격 (원, 비우면 가격 제안)" className={input} />
+        <div className="flex gap-2">
+          <select value={grade} onChange={(e) => setGrade(e.target.value)} className={input}>
+            {["S급", "A급", "B급", "C급", "PSA 10", "PSA 9", "BRG 10", "BRG 9"].map((g) => (
+              <option key={g}>{g}</option>
+            ))}
+          </select>
+          <input value={qty} onChange={(e) => setQty(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="수량" className={`${input} w-28`} />
+        </div>
         <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="상태, 거래 방법 등" rows={3} className={input} />
         <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="연락 방법 (예: 오픈채팅 링크)" className={input} />
         {error && <p className="text-sm text-red-600">{error}</p>}

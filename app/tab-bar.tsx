@@ -20,14 +20,14 @@ const tabs = [
 export default function TabBar() {
   const pathname = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-[1000] mx-auto max-w-md border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <nav className="fixed inset-x-3 bottom-[calc(10px+env(safe-area-inset-bottom))] z-[1000] mx-auto max-w-[calc(28rem-24px)] rounded-3xl border border-line bg-white/95 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur">
       <ul className="grid h-[64px] grid-cols-5 items-center">
         {tabs.map((t) => {
           const active = t.href === "/" ? pathname === "/" : pathname.startsWith(t.href);
           if (!t.icon) {
             return (
               <li key={t.href} className="flex justify-center">
-                <Link href={t.href} aria-label={t.label} className="-mt-6 grid size-14 place-items-center rounded-full bg-brand text-white shadow-lg shadow-brand/30">
+                <Link href={t.href} aria-label={t.label} className="-mt-7 grid size-14 place-items-center rounded-full bg-brand text-white shadow-lg shadow-brand/30">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-7" aria-hidden>
                     <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M9 12h6" />
                   </svg>

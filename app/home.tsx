@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import type { SetSummary } from "@/lib/cards";
-import { useCollection } from "@/lib/collection";
+import { useCollection, usePrices, won } from "@/lib/collection";
 import { Progress } from "./card-sheet";
 import { ownedPerSet } from "./dex/dex-list";
 
@@ -14,6 +14,8 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
   const kinds = Object.keys(owned).length;
   const started = sets.filter((s) => per[s.id]).sort((a, b) => per[b.id] / b.total - per[a.id] / a.total);
   const fresh = sets.slice(0, 4);
+  const prices = usePrices(started.map((s) => s.id));
+  const value = Object.entries(owned).reduce((sum, [id, n]) => sum + n * (prices[id] ?? 0), 0);
 
   return (
     <main className="px-5 pt-5">
@@ -28,11 +30,12 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
       </header>
 
       <section className="mt-4 rounded-3xl bg-soft p-5">
-        <p className="text-sm text-sub">내 카드</p>
-        <p className="mt-1 text-3xl font-extrabold tracking-tight">{total.toLocaleString()}장</p>
+        <p className="text-sm text-sub">내 카드 가치</p>
+        <p className="mt-1 text-3xl font-extrabold tracking-tight">{won(value)}</p>
         <p className="mt-1 text-sm text-sub">
-          {kinds}종 · 세트 {started.length}개 수집 중
+          {total.toLocaleString()}장 · {kinds}종 · 세트 {started.length}개 수집 중
         </p>
+        <p className="mt-2 text-xs text-sub">일본판 유유테이 판매가를 오늘 환율로 환산한 값이에요.</p>
       </section>
 
       <section className="mt-6">

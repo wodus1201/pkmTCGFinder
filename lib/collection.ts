@@ -14,6 +14,22 @@ function read(): Collection {
   }
 }
 
+/** 세트들의 카드별 원화 시세(일본판 유유테이 기준). */
+export function usePrices(setIds: string[]) {
+  const [prices, setPrices] = useState<Record<string, number>>({});
+  const key = [...new Set(setIds)].sort().join(",");
+  useEffect(() => {
+    if (!key) return;
+    fetch(`/api/prices?sets=${key}`)
+      .then((r) => r.json())
+      .then((d) => setPrices(d.prices ?? {}))
+      .catch(() => {});
+  }, [key]);
+  return prices;
+}
+
+export const won = (n: number) => `${n.toLocaleString()}원`;
+
 export function useCollection() {
   const [owned, setOwned] = useState<Collection>({});
   useEffect(() => {
