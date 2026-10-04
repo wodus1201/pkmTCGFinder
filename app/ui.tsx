@@ -16,6 +16,15 @@ export function Chevron({ right = false }: { right?: boolean }) {
   );
 }
 
+/** 수량 −/+ 버튼 아이콘 */
+export function PlusMinus({ plus = false }: { plus?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden>
+      <path d={plus ? "M12 5v14M5 12h14" : "M5 12h14"} />
+    </svg>
+  );
+}
+
 export function Back({ href }: { href?: string }) {
   const router = useRouter();
   const arrow = <Chevron />;

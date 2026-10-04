@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Card } from "@/lib/cards";
 import { useCollection, usePrices, won } from "@/lib/collection";
-import { Back, CardTile, Chevron, Underline } from "../../../ui";
+import { Back, CardTile, Chevron, PlusMinus, Underline } from "../../../ui";
 import { img } from "@/lib/img";
 import { setNavDir } from "@/lib/nav";
 
@@ -111,12 +111,12 @@ export default function CardView({
       <div className="mt-4 flex items-center justify-between rounded-xl bg-soft px-4 py-3">
         <span className="text-[15px] font-semibold">{count ? `${count}장 보유 중` : "아직 없어요"}</span>
         <div className="flex items-center gap-3">
-          <button onClick={() => setCount(card.id, Math.max(0, count - 1))} className="size-8 rounded-full bg-white text-lg font-bold" aria-label="한 장 빼기">
-            −
+          <button onClick={() => setCount(card.id, Math.max(0, count - 1))} className="grid size-8 place-items-center rounded-full bg-white" aria-label="한 장 빼기">
+            <PlusMinus />
           </button>
-          <span className="w-5 text-center font-bold">{count}</span>
-          <button onClick={() => setCount(card.id, count + 1)} className="size-8 rounded-full bg-brand text-lg font-bold text-white" aria-label="한 장 더하기">
-            +
+          <span className="w-5 text-center font-bold leading-none">{count}</span>
+          <button onClick={() => setCount(card.id, count + 1)} className="grid size-8 place-items-center rounded-full bg-brand text-white" aria-label="한 장 더하기">
+            <PlusMinus plus />
           </button>
         </div>
       </div>
@@ -136,12 +136,12 @@ export default function CardView({
               className="mx-auto w-[78%] rounded-2xl shadow-lg"
             />
             {prev && (
-              <button onClick={() => go(prev)} aria-label="이전 카드" className="absolute left-0 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
+              <button onClick={() => go(prev)} aria-label="이전 카드" className="absolute -left-2 top-1/2 -translate-y-1/2 p-1 text-ink2">
                 <Chevron />
               </button>
             )}
             {next && (
-              <button onClick={() => go(next)} aria-label="다음 카드" className="absolute right-0 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
+              <button onClick={() => go(next)} aria-label="다음 카드" className="absolute -right-2 top-1/2 -translate-y-1/2 p-1 text-ink2">
                 <Chevron right />
               </button>
             )}

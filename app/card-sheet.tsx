@@ -1,6 +1,7 @@
 "use client";
 
 import type { Card } from "@/lib/cards";
+import { PlusMinus } from "./ui";
 import { img } from "@/lib/img";
 
 export function Progress({ have, total }: { have: number; total: number }) {
@@ -59,13 +60,13 @@ export default function CardSheet({
         <div className="mt-4 flex items-center justify-between rounded-2xl border border-line p-3">
           <span className="font-semibold">보유 장수</span>
           <div className="flex items-center gap-3">
-            <button onClick={() => onCount(Math.max(0, count - 1))} className="size-9 rounded-full bg-soft text-lg font-bold" aria-label="한 장 빼기">
-              −
-            </button>
+            <button onClick={() => onCount(Math.max(0, count - 1))} className="grid size-9 place-items-center rounded-full bg-soft" aria-label="한 장 빼기">
+            <PlusMinus />
+          </button>
             <span className="w-6 text-center text-lg font-bold">{count}</span>
-            <button onClick={() => onCount(count + 1)} className="size-9 rounded-full bg-brand text-lg font-bold text-white" aria-label="한 장 더하기">
-              +
-            </button>
+            <button onClick={() => onCount(count + 1)} className="grid size-9 place-items-center rounded-full bg-brand text-white" aria-label="한 장 더하기">
+            <PlusMinus plus />
+          </button>
           </div>
         </div>
       </div>
