@@ -13,6 +13,11 @@ type Owned = Card & { setName: string };
 export default function Home({ sets }: { sets: SetSummary[] }) {
   const { owned } = useCollection();
   const me = useMe();
+  const [loginError, setLoginError] = useState("");
+  useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    if (q.get("login") === "failed") setLoginError(q.get("reason") ?? "unknown");
+  }, []);
   const per = useMemo(() => ownedPerSet(owned), [owned]);
   const ids = Object.keys(owned);
   const total = Object.values(owned).reduce((a, b) => a + b, 0);
@@ -33,6 +38,9 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
 
   return (
     <main className="space-y-3 bg-soft px-4 py-4">
+      {loginError && (
+        <p className="rounded-2xl bg-red-50 p-4 text-[14px] text-red-600">카카오 로그인에 실패했어요 ({loginError}). 이 문구를 알려 주세요.</p>
+      )}
       {me.ready && !me.user && (
         <section className="flex items-center justify-between gap-3 rounded-3xl bg-white p-5">
           <p className="text-[14px] text-ink2">

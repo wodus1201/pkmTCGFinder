@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Place } from "@/lib/db";
 import type { StoreStock } from "@/lib/emart24";
 
-const StockMap = dynamic(() => import("./stock-map"), {
+const KakaoMap = dynamic(() => import("./kakao-map"), { ssr: false, loading: () => <div className="h-64 animate-pulse rounded-2xl bg-soft" /> });
+const OsmMap = dynamic(() => import("./stock-map"), {
   ssr: false,
   loading: () => <div className="h-64 animate-pulse rounded-2xl bg-soft" />,
 });
@@ -59,6 +60,7 @@ export default function StockPage() {
   const [sub, setSub] = useState<PushSubscription | null>(null);
   const [push, setPush] = useState<"unsupported" | "needs-install" | "ready">("unsupported");
   const [pushMsg, setPushMsg] = useState("");
+  const [kakaoFailed, setKakaoFailed] = useState(false);
 
   // 처음 열 때: 저장해 둔 설정, 위치, 자판기 목록, 서비스워커
   useEffect(() => {
@@ -219,6 +221,8 @@ export default function StockPage() {
 
       <section className="mt-3">
           <StockMap
+            useKakao={Boolean(process.env.NEXT_PUBLIC_KAKAO_JS_KEY) && !kakaoFailed}
+            onKakaoFail={() => setKakaoFailed(true)}
             center={view ?? SEOUL}
             radiusM={view?.radiusM ?? 0}
             stores={(stores ?? []).map((s) => ({ lat: s.store.lat, lng: s.store.lng, name: s.store.name, inStock: s.items.length > 0 }))}
@@ -356,4 +360,9 @@ export default function StockPage() {
       </section>
     </main>
   );
+}
+
+/** 카카오맵 키가 있으면 카카오맵, 없거나 불러오지 못하면 OpenStreetMap */
+function StockMap({ useKakao, onKakaoFail, ...props }: import("./stock-map").MapProps & { useKakao: boolean; onKakaoFail: () => void }) {
+  return useKakao ? <KakaoMap {...props} onFail={onKakaoFail} /> : <OsmMap {...props} />;
 }
