@@ -7,13 +7,18 @@ import { img } from "@/lib/img";
 
 // dogam.app 화면에서 반복되는 조각들
 
-export function Back({ href }: { href?: string }) {
-  const router = useRouter();
-  const arrow = (
+/** 좌상단 뒤로 버튼과 같은 꺾쇠 화살표 */
+export function Chevron({ right = false }: { right?: boolean }) {
+  return (
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="m15 18-6-6 6-6" />
+      <path d={right ? "m9 18 6-6-6-6" : "m15 18-6-6 6-6"} />
     </svg>
   );
+}
+
+export function Back({ href }: { href?: string }) {
+  const router = useRouter();
+  const arrow = <Chevron />;
   return href ? (
     <Link href={href} onClick={() => setNavDir("back")} aria-label="뒤로" className="-ml-1 inline-block py-2">
       {arrow}

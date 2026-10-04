@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Card } from "@/lib/cards";
 import { useCollection, usePrices, won } from "@/lib/collection";
-import { Back, CardTile, Underline } from "../../../ui";
+import { Back, CardTile, Chevron, Underline } from "../../../ui";
 import { img } from "@/lib/img";
 import { setNavDir } from "@/lib/nav";
 
@@ -102,7 +102,8 @@ export default function CardView({
         <div>
           <h1 className="text-[22px] font-bold">{card.name} 한글판</h1>
           <p className="text-[15px] text-sub">
-            {card.number} · {rarityLabel(card.rarity)}
+            {card.number}
+            {card.rarity && ` · ${rarityLabel(card.rarity)}`}
           </p>
         </div>
       </div>
@@ -135,13 +136,13 @@ export default function CardView({
               className="mx-auto w-[78%] rounded-2xl shadow-lg"
             />
             {prev && (
-              <button onClick={() => go(prev)} aria-label="이전 카드" className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow">
-                ‹
+              <button onClick={() => go(prev)} aria-label="이전 카드" className="absolute left-0 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
+                <Chevron />
               </button>
             )}
             {next && (
-              <button onClick={() => go(next)} aria-label="다음 카드" className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow">
-                ›
+              <button onClick={() => go(next)} aria-label="다음 카드" className="absolute right-0 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow">
+                <Chevron right />
               </button>
             )}
           </div>
