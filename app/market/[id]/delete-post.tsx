@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { setNavDir } from "@/lib/nav";
+import { Overlay } from "../../ui";
 
 export default function DeletePost({ id }: { id: string }) {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function DeletePost({ id }: { id: string }) {
         글 삭제
       </button>
       {asking && (
+        <Overlay>
         <div className="fixed inset-0 z-[1100] grid place-items-center bg-black/40 px-8" onClick={() => !busy && setAsking(false)}>
           <div role="dialog" aria-modal="true" aria-labelledby="del-title" className="w-full max-w-xs rounded-2xl bg-white p-5 text-center" onClick={(e) => e.stopPropagation()}>
             <p id="del-title" className="text-[17px] font-bold">
@@ -39,6 +41,7 @@ export default function DeletePost({ id }: { id: string }) {
             </div>
           </div>
         </div>
+        </Overlay>
       )}
     </>
   );

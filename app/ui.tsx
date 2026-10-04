@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { setNavDir } from "@/lib/nav";
 import { img } from "@/lib/img";
 
@@ -119,3 +120,10 @@ export function CardTile({
   );
 }
 
+
+/**
+ * 모달·서랍을 페이지 바깥(body)에 그린다. 페이지 전환 애니메이션 안에 있으면 하단 탭보다 아래 층에 깔려 가려지기 때문.
+ */
+export function Overlay({ children }: { children: React.ReactNode }) {
+  return typeof document === "undefined" ? null : createPortal(children, document.body);
+}

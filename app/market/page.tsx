@@ -7,6 +7,7 @@ import type { Post } from "@/lib/db";
 import { loginUrl, useMe } from "@/lib/collection";
 import { Search, Underline } from "../ui";
 import { img } from "@/lib/img";
+import { Overlay } from "../ui";
 
 type Item = Omit<Post, "owner"> & { mine: boolean };
 type Hit = { id: string; name: string; image: string; number: string; setName: string };
@@ -135,6 +136,7 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
 
   const input = "w-full rounded-xl bg-soft px-4 py-3 text-sm outline-none";
   return (
+    <Overlay>
     <div className="fixed inset-0 z-[1100] flex items-end justify-center bg-black/40" onClick={onClose}>
       <form
         onSubmit={submit}
@@ -195,5 +197,6 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
         <button className="w-full rounded-xl bg-brand py-3 text-sm font-semibold text-white">올리기</button>
       </form>
     </div>
+    </Overlay>
   );
 }

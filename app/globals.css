@@ -17,6 +17,17 @@ body {
   color: var(--color-ink);
 }
 
+/* 아이폰은 16px보다 작은 입력칸을 누르면 화면을 확대한다. 입력칸은 16px로 고정 */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
+/* 두 손가락 확대·두 번 탭 확대 막기 (스크롤은 그대로) */
+html {
+  touch-action: pan-x pan-y;
+}
+
 /* 페이지 전환 (app/template.tsx) */
 .page-forward {
   animation: pg-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;

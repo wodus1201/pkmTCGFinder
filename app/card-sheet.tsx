@@ -3,6 +3,7 @@
 import type { Card } from "@/lib/cards";
 import { PlusMinus } from "./ui";
 import { img } from "@/lib/img";
+import { Overlay } from "./ui";
 
 export function Progress({ have, total }: { have: number; total: number }) {
   const pct = total ? Math.round((have / total) * 100) : 0;
@@ -33,6 +34,7 @@ export default function CardSheet({
   onClose: () => void;
 }) {
   return (
+    <Overlay>
     <div className="fixed inset-0 z-[1100] flex items-end justify-center bg-black/40" onClick={onClose}>
       <div
         className="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 pb-[calc(20px+env(safe-area-inset-bottom))]"
@@ -43,7 +45,8 @@ export default function CardSheet({
         <h2 className="mt-4 text-xl font-extrabold">{card.name}</h2>
         <p className="text-sm text-sub">
           {setName ? `${setName} · ` : ""}
-          {card.number} · {card.rarity}
+          {card.number}
+          {card.rarity && ` · ${card.rarity}`}
         </p>
         <p className="mt-2 text-2xl font-extrabold">{price ? `${price.toLocaleString()}원` : "시세 없음"}</p>
         {price ? <p className="text-xs text-sub">일본판 유유테이 판매가를 오늘 환율로 환산한 값이에요.</p> : null}
@@ -71,5 +74,6 @@ export default function CardSheet({
         </div>
       </div>
     </div>
+    </Overlay>
   );
 }
