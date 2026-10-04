@@ -19,9 +19,17 @@ export type Post = {
   contact: string;
   card: { id: string; name: string; image: string } | null;
   createdAt: number;
-  owner: string; // 글쓴이 브라우저의 임의 토큰. 본인 글 삭제 확인용이라 목록 응답에는 넣지 않는다.
+  owner: string; // 글쓴이 카카오 계정 ID. 본인 글 삭제 확인용이라 목록 응답에는 넣지 않는다.
+  author?: string; // 글쓴이 닉네임
 };
-type Db = { subscribers: Subscriber[]; posts?: Post[]; collection?: Record<string, number> };
+export type Account = { id: string; name: string; image: string; createdAt: number; lastLogin: number };
+type Db = {
+  subscribers: Subscriber[];
+  posts?: Post[];
+  users?: Record<string, Account>;
+  collections?: Record<string, Record<string, number>>; // 사용자 ID → 카드 ID → 보유 장수
+  collection?: Record<string, number>; // 로그인 도입 전 저장분. 첫 로그인 사용자에게 옮긴 뒤 지운다.
+};
 
 const FILE = "data/db.json";
 let queue = Promise.resolve();
@@ -49,4 +57,18 @@ export function update<T>(fn: (db: Db) => T): Promise<T> {
 
 export const subscribers = () => read().then((db) => db.subscribers);
 export const posts = () => read().then((db) => db.posts ?? []);
-export const collection = () => read().then((db) => db.collection ?? {});
+export const collectionOf = (userId: string) => read().then((db) => db.collections?.[userId] ?? {});
+
+/** 로그인할 때 계정 정보를 저장한다. 로그인 전에 쓰던 보유 카드가 있으면 이 계정으로 옮긴다. */
+export function signIn(user: { id: string; name: string; image: string }) {
+  return update((db) => {
+    const users = (db.users ??= {});
+    const now = Date.now();
+    users[user.id] = { ...user, createdAt: users[user.id]?.createdAt ?? now, lastLogin: now };
+    const cols = (db.collections ??= {});
+    if (db.collection && Object.keys(db.collection).length && !Object.keys(cols[user.id] ?? {}).length) {
+      cols[user.id] = db.collection;
+      delete db.collection;
+    }
+  });
+}

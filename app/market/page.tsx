@@ -2,22 +2,12 @@
 
 import { useEffect, useState } from "react";
 import type { Post } from "@/lib/db";
+import { loginUrl, useMe } from "@/lib/collection";
 import { Search, Underline } from "../ui";
 import { img } from "@/lib/img";
 
-type Item = Omit<Post, "owner">;
+type Item = Omit<Post, "owner"> & { mine: boolean };
 type Hit = { id: string; name: string; image: string; number: string; setName: string };
-
-function ownerToken() {
-  try {
-    let t = localStorage.getItem("owner");
-    if (!t) localStorage.setItem("owner", (t = crypto.randomUUID()));
-    const mine: string[] = JSON.parse(localStorage.getItem("myPosts") || "[]");
-    return { token: t, mine };
-  } catch {
-    return { token: "", mine: [] as string[] };
-  }
-}
 
 const won = (n: number | null) => (n == null ? "가격 제안" : `${n.toLocaleString()}원`);
 const ago = (t: number) => {
@@ -31,16 +21,15 @@ export default function MarketPage() {
   const [list, setList] = useState<Item[]>([]);
   const [writing, setWriting] = useState(false);
   const [open, setOpen] = useState<Item | null>(null);
-  const [mine, setMine] = useState<string[]>([]);
+  const { user } = useMe();
 
   const load = () => fetch("/api/market").then((r) => r.json()).then((d) => setList(d.posts));
   useEffect(() => {
     load();
-    setMine(ownerToken().mine);
   }, []);
 
   async function remove(id: string) {
-    await fetch("/api/market", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, owner: ownerToken().token }) });
+    await fetch("/api/market", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
     setOpen(null);
     load();
   }
@@ -58,7 +47,7 @@ export default function MarketPage() {
         <div className="flex-1">
           <Search value={q} onChange={setQ} placeholder="카드 이름으로 찾기" />
         </div>
-        <button onClick={() => setWriting(true)} className="rounded-xl bg-brand px-5 text-[15px] font-bold text-white">
+        <button onClick={() => (user ? setWriting(true) : (location.href = loginUrl()))} className="rounded-xl bg-brand px-5 text-[15px] font-bold text-white">
           팔기
         </button>
       </div>
@@ -72,7 +61,7 @@ export default function MarketPage() {
           <li key={p.id}>
             <button onClick={() => setOpen(p)} className="block w-full p-3 text-left">
               <span className="flex items-center justify-between text-[13px]">
-                <span className="truncate text-ink2">{mine.includes(p.id) ? "내 글" : ago(p.createdAt)}</span>
+                <span className="truncate text-ink2">{p.mine ? "내 글" : (p.author ?? "") + " · " + ago(p.createdAt)}</span>
                 <span className={`font-bold ${p.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{p.kind === "sell" ? "판매" : "구매"}</span>
               </span>
               <span className="mt-2 flex h-36 items-center justify-center rounded-lg bg-soft">
@@ -115,7 +104,7 @@ export default function MarketPage() {
                 <span className="select-all font-semibold">{open.contact}</span>
               </p>
             )}
-            {mine.includes(open.id) && (
+            {open.mine && (
               <button onClick={() => remove(open.id)} className="mt-4 w-full rounded-xl bg-soft py-3 text-[15px] font-semibold text-red-500">
                 글 삭제
               </button>
@@ -127,12 +116,7 @@ export default function MarketPage() {
       {writing && (
         <Compose
           onClose={() => setWriting(false)}
-          onDone={(id) => {
-            const next = [...ownerToken().mine, id];
-            try {
-              localStorage.setItem("myPosts", JSON.stringify(next));
-            } catch {}
-            setMine(next);
+          onDone={() => {
             setWriting(false);
             load();
           }}
@@ -179,7 +163,6 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
         body,
         contact,
         card: card && { id: card.id, name: `${card.name} (${card.setName} ${card.number})`, image: card.image },
-        owner: ownerToken().token,
       }),
     });
     const d = await r.json();

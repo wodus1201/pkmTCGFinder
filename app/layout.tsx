@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import Account from "./account";
 import TabBar from "./tab-bar";
 import "./globals.css";
 
@@ -27,12 +28,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/" className="text-[22px] font-black italic tracking-tight text-brand">
               포카파인더
             </Link>
-            <Link href="/scan" aria-label="카드 찾기" className="text-ink2">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-3.5-3.5" />
-              </svg>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/scan" aria-label="카드 찾기" className="text-ink2">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+              </Link>
+              <Account />
+            </div>
           </header>
           {children}
         </div>

@@ -1,18 +1,22 @@
+import { currentUser } from "@/lib/auth";
 import { posts, update, type Post } from "@/lib/db";
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
 export async function GET() {
+  const user = await currentUser();
   const list = (await posts()).sort((a, b) => b.createdAt - a.createdAt);
-  return Response.json({ posts: list.map(({ owner: _o, ...p }) => p) });
+  return Response.json({ posts: list.map(({ owner, ...p }) => ({ ...p, mine: Boolean(user && owner === user.id) })) });
 }
 
 export async function POST(req: Request) {
+  const user = await currentUser();
+  if (!user) return Response.json({ error: "카카오로 로그인한 뒤 글을 올릴 수 있어요" }, { status: 401 });
   const b = await req.json();
   const kind = b.kind === "buy" ? "buy" : "sell";
   const title = str(b.title, 80);
-  const owner = str(b.owner, 64);
-  if (!title || !owner) return Response.json({ error: "제목을 입력해 주세요" }, { status: 400 });
+  const owner = user.id;
+  if (!title) return Response.json({ error: "제목을 입력해 주세요" }, { status: 400 });
   const price = Number(b.price);
   const card =
     b.card && typeof b.card.id === "string"
@@ -32,6 +36,7 @@ export async function POST(req: Request) {
     card,
     createdAt: Date.now(),
     owner,
+    author: user.name,
   };
   await update((db) => {
     db.posts = [...(db.posts ?? []), post];
@@ -40,7 +45,9 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const { id, owner } = await req.json();
+  const user = await currentUser();
+  const { id } = await req.json();
+  const owner = user?.id;
   const removed = await update((db) => {
     const before = db.posts?.length ?? 0;
     db.posts = (db.posts ?? []).filter((p) => !(p.id === id && p.owner === owner));

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Card, SetSummary } from "@/lib/cards";
-import { useCollection, usePrices, won } from "@/lib/collection";
+import { loginUrl, useCollection, useMe, usePrices, won } from "@/lib/collection";
 import { ownedPerSet } from "./dex/dex-list";
 import { img } from "@/lib/img";
 
@@ -11,6 +11,7 @@ type Owned = Card & { setName: string };
 
 export default function Home({ sets }: { sets: SetSummary[] }) {
   const { owned } = useCollection();
+  const me = useMe();
   const per = useMemo(() => ownedPerSet(owned), [owned]);
   const ids = Object.keys(owned);
   const total = Object.values(owned).reduce((a, b) => a + b, 0);
@@ -31,6 +32,16 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
 
   return (
     <main className="space-y-3 bg-soft px-4 py-4">
+      {me.ready && !me.user && (
+        <section className="flex items-center justify-between gap-3 rounded-3xl bg-white p-5">
+          <p className="text-[14px] text-ink2">
+            <b className="text-ink">카카오로 로그인</b>하면 내 도감이 계정에 저장돼서 어디서든 그대로 볼 수 있어요.
+          </p>
+          <a href="/api/auth/kakao" onClick={(e) => (e.currentTarget.href = loginUrl())} className="shrink-0 rounded-xl bg-[#FEE500] px-4 py-2.5 text-[14px] font-bold text-[#191919]">
+            로그인
+          </a>
+        </section>
+      )}
       <section className="rounded-3xl bg-white p-5">
         <div className="flex items-start justify-between">
           <div>

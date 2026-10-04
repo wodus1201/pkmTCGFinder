@@ -1,15 +1,20 @@
-import { collection, update } from "@/lib/db";
+import { currentUser } from "@/lib/auth";
+import { collectionOf, update } from "@/lib/db";
 
-// 보유 카드를 서버(data/db.json)에 저장해서 접속 주소·기기가 바뀌어도 유지한다. 혼자 쓰는 앱이라 사용자 구분은 없다.
+// 보유 카드는 카카오 계정별로 서버(data/db.json)에 저장한다. 로그인하지 않으면 401.
 export async function GET() {
-  return Response.json({ owned: await collection() });
+  const user = await currentUser();
+  if (!user) return Response.json({ error: "login" }, { status: 401 });
+  return Response.json({ owned: await collectionOf(user.id) });
 }
 
-/** { id, count } 한 장 바꾸기, 또는 { all } 통째로 합치기(기존 브라우저 저장분 옮길 때) */
+/** { id, count } 한 장 바꾸기, 또는 { all } 통째로 합치기(로그인 전 브라우저 저장분 옮길 때) */
 export async function POST(req: Request) {
+  const user = await currentUser();
+  if (!user) return Response.json({ error: "login" }, { status: 401 });
   const b = await req.json();
   const owned = await update((db) => {
-    const c = (db.collection ??= {});
+    const c = ((db.collections ??= {})[user.id] ??= {});
     const apply = (id: unknown, n: unknown) => {
       const count = Math.min(Math.max(Math.round(Number(n)) || 0, 0), 999);
       if (typeof id !== "string" || !/^BS\d{9,}$/.test(id)) return;
