@@ -6,7 +6,8 @@
 
 ```bash
 npm install
-npm run dev
+npm run build && npm start   # 평소 사용 (빠름)
+npm run dev                  # 코드 고칠 때만
 ```
 
 http://localhost:3000/stock 을 열면 됩니다. 서버가 켜져 있는 동안 10분마다(`CHECK_INTERVAL_MIN`) 알림을 켠 사용자의 위치를 확인해서 새 재고가 생기면 웹 푸시를 보냅니다.
