@@ -52,3 +52,11 @@ npx cloudflared tunnel --url http://localhost:3000
 ```bash
 npx tsx lib/watch.check.ts
 ```
+
+## 사진 인식
+
+```bash
+npx tsx scripts/hash-cards.ts
+```
+
+카드를 새로 모은 뒤 실행하면 사진 인식용 지문(`data/prints.json`)이 갱신됩니다. 정확도 확인: `npx tsx lib/fingerprint.check.ts`

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Post } from "@/lib/db";
+import { Search, Underline } from "../ui";
 
 type Item = Omit<Post, "owner">;
 type Hit = { id: string; name: string; image: string; number: string; setName: string };
@@ -24,9 +25,11 @@ const ago = (t: number) => {
 };
 
 export default function MarketPage() {
-  const [tab, setTab] = useState<"all" | "sell" | "buy">("all");
+  const [tab, setTab] = useState<"전체" | "팝니다" | "삽니다">("전체");
+  const [q, setQ] = useState("");
   const [list, setList] = useState<Item[]>([]);
   const [writing, setWriting] = useState(false);
+  const [open, setOpen] = useState<Item | null>(null);
   const [mine, setMine] = useState<string[]>([]);
 
   const load = () => fetch("/api/market").then((r) => r.json()).then((d) => setList(d.posts));
@@ -37,64 +40,88 @@ export default function MarketPage() {
 
   async function remove(id: string) {
     await fetch("/api/market", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, owner: ownerToken().token }) });
+    setOpen(null);
     load();
   }
 
-  const shown = list.filter((p) => tab === "all" || p.kind === tab);
+  const words = q.trim().toLowerCase();
+  const shown = list.filter(
+    (p) =>
+      (tab === "전체" || p.kind === (tab === "팝니다" ? "sell" : "buy")) &&
+      (!words || `${p.title} ${p.card?.name ?? ""}`.toLowerCase().includes(words)),
+  );
 
   return (
-    <main className="px-5 pt-6">
-      <header className="flex items-end justify-between">
-        <h1 className="text-2xl font-extrabold tracking-tight">거래소</h1>
-        <button onClick={() => setWriting(true)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
-          글쓰기
+    <main className="px-5 pt-5">
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <Search value={q} onChange={setQ} placeholder="카드 이름으로 찾기" />
+        </div>
+        <button onClick={() => setWriting(true)} className="rounded-xl bg-brand px-5 text-[15px] font-bold text-white">
+          팔기
         </button>
-      </header>
-      <div className="mt-4 flex gap-4 border-b border-line text-sm">
-        {(
-          [
-            ["all", "전체"],
-            ["sell", "판매"],
-            ["buy", "구매"],
-          ] as const
-        ).map(([k, label]) => (
-          <button key={k} onClick={() => setTab(k)} className={`-mb-px pb-2 ${tab === k ? "border-b-2 border-ink font-bold" : "text-sub"}`}>
-            {label}
-          </button>
-        ))}
+      </div>
+      <div className="mt-5">
+        <Underline items={["전체", "팝니다", "삽니다"] as const} value={tab} onChange={setTab} right={shown.length} />
       </div>
 
       {shown.length === 0 && <p className="mt-6 rounded-xl bg-soft p-4 text-sm text-sub">아직 글이 없어요. 첫 글을 올려 보세요.</p>}
-      <ul className="divide-y divide-line pb-6">
+      <ul className="mt-4 grid grid-cols-2 overflow-hidden rounded-xl border border-line [&>li:nth-child(odd)]:border-r [&>li]:border-b [&>li]:border-line">
         {shown.map((p) => (
-          <li key={p.id} className="flex gap-3 py-4">
-            {p.card?.image ? (
-              <img src={`${p.card.image}?w=200`} alt="" className="h-20 w-14 shrink-0 rounded-md object-cover" />
-            ) : (
-              <div className="h-20 w-14 shrink-0 rounded-md bg-soft" />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-xs">
-                <span className={`font-semibold ${p.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{p.kind === "sell" ? "판매" : "구매"}</span>
-                <span className="text-sub"> · {ago(p.createdAt)}</span>
-              </p>
-              <p className="truncate font-semibold">{p.title}</p>
-              {p.card && <p className="truncate text-xs text-sub">{p.card.name}</p>}
-              <p className="text-xs text-sub">
+          <li key={p.id}>
+            <button onClick={() => setOpen(p)} className="block w-full p-3 text-left">
+              <span className="flex items-center justify-between text-[13px]">
+                <span className="truncate text-ink2">{mine.includes(p.id) ? "내 글" : ago(p.createdAt)}</span>
+                <span className={`font-bold ${p.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{p.kind === "sell" ? "판매" : "구매"}</span>
+              </span>
+              <span className="mt-2 flex h-36 items-center justify-center rounded-lg bg-soft">
+                {p.card?.image ? <img src={`${p.card.image}?w=240`} alt="" className="h-32 rounded" /> : <span className="text-xs text-faint">이미지 없음</span>}
+              </span>
+              <span className="mt-2 block truncate text-[14px] font-medium">{p.title}</span>
+              <span className="block truncate text-[13px] text-sub">{p.card?.name ?? "카드 미지정"}</span>
+              <span className="block text-[13px] text-sub">
                 {p.grade ?? "A급"} {p.qty ?? 1}장
-              </p>
-              <p className="mt-0.5 font-bold">{won(p.price)}</p>
-              {p.body && <p className="mt-1 line-clamp-2 text-sm text-sub">{p.body}</p>}
-              {p.contact && <p className="mt-1 text-xs text-sub">연락: {p.contact}</p>}
-              {mine.includes(p.id) && (
-                <button onClick={() => remove(p.id)} className="mt-1 text-xs text-red-500">
-                  삭제
-                </button>
-              )}
-            </div>
+              </span>
+              <span className="mt-1 flex items-center justify-between">
+                <span className="truncate text-[16px] font-extrabold">{won(p.price)}</span>
+              </span>
+            </button>
           </li>
         ))}
       </ul>
+      <div className="h-6" />
+
+      {open && (
+        <div className="fixed inset-0 z-[1100] flex items-end justify-center bg-black/40" onClick={() => setOpen(null)}>
+          <div className="w-full max-w-md rounded-t-3xl bg-white p-5 pb-[calc(20px+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line" />
+            <div className="flex gap-4">
+              {open.card?.image && <img src={`${open.card.image}?w=300`} alt="" className="w-28 rounded-lg" />}
+              <div className="min-w-0">
+                <p className={`text-[13px] font-bold ${open.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{open.kind === "sell" ? "팝니다" : "삽니다"}</p>
+                <p className="text-[18px] font-bold">{open.title}</p>
+                {open.card && <p className="text-[13px] text-sub">{open.card.name}</p>}
+                <p className="text-[13px] text-sub">
+                  {open.grade ?? "A급"} {open.qty ?? 1}장 · {ago(open.createdAt)}
+                </p>
+                <p className="mt-2 text-[22px] font-extrabold">{won(open.price)}</p>
+              </div>
+            </div>
+            {open.body && <p className="mt-4 whitespace-pre-wrap rounded-xl bg-soft p-4 text-[14px]">{open.body}</p>}
+            {open.contact && (
+              <p className="mt-3 text-[14px]">
+                <span className="text-sub">연락 방법 </span>
+                <span className="select-all font-semibold">{open.contact}</span>
+              </p>
+            )}
+            {mine.includes(open.id) && (
+              <button onClick={() => remove(open.id)} className="mt-4 w-full rounded-xl bg-soft py-3 text-[15px] font-semibold text-red-500">
+                글 삭제
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {writing && (
         <Compose

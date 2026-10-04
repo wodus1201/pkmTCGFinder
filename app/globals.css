@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
+/* dogam.app 웹에서 읽은 색 */
 @theme {
-  --color-brand: #2557f5;
-  --color-ink: #111827;
-  --color-sub: #6b7280;
-  --color-line: #eef0f3;
-  --color-soft: #f5f6f8;
+  --color-brand: #2253f4;
+  --color-ink: #191f28;
+  --color-ink2: #4e5968;
+  --color-sub: #6b7684;
+  --color-faint: #b0b8c1;
+  --color-line: #e5e8eb;
+  --color-soft: #f2f4f6;
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
 body {
-  background: var(--color-soft);
+  background: #fff;
   color: var(--color-ink);
 }

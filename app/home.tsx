@@ -1,89 +1,97 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import type { SetSummary } from "@/lib/cards";
+import { useEffect, useMemo, useState } from "react";
+import type { Card, SetSummary } from "@/lib/cards";
 import { useCollection, usePrices, won } from "@/lib/collection";
-import { Progress } from "./card-sheet";
 import { ownedPerSet } from "./dex/dex-list";
+
+type Owned = Card & { setName: string };
 
 export default function Home({ sets }: { sets: SetSummary[] }) {
   const { owned } = useCollection();
   const per = useMemo(() => ownedPerSet(owned), [owned]);
+  const ids = Object.keys(owned);
   const total = Object.values(owned).reduce((a, b) => a + b, 0);
-  const kinds = Object.keys(owned).length;
   const started = sets.filter((s) => per[s.id]).sort((a, b) => per[b.id] / b.total - per[a.id] / a.total);
-  const fresh = sets.slice(0, 4);
   const prices = usePrices(started.map((s) => s.id));
-  const value = Object.entries(owned).reduce((sum, [id, n]) => sum + n * (prices[id] ?? 0), 0);
+  const value = ids.reduce((sum, id) => sum + owned[id] * (prices[id] ?? 0), 0);
+
+  const [cards, setCards] = useState<Owned[]>([]);
+  const idKey = ids.sort().join(",");
+  useEffect(() => {
+    if (!idKey) return setCards([]);
+    fetch(`/api/cards/search?ids=${idKey}`)
+      .then((r) => r.json())
+      .then((d) => setCards(d.cards));
+  }, [idKey]);
+  const top = [...cards].sort((a, b) => (prices[b.id] ?? 0) - (prices[a.id] ?? 0)).slice(0, 3);
+  const suggest = sets.filter((s) => !per[s.id]).slice(0, Math.max(0, 4 - started.length));
 
   return (
-    <main className="px-5 pt-5">
-      <header className="flex items-center justify-between">
-        <span className="text-2xl font-black italic tracking-tight text-brand">포카파인더</span>
-        <Link href="/scan" aria-label="카드 찾기" className="text-ink">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-6" aria-hidden>
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" />
-          </svg>
-        </Link>
-      </header>
-
-      <section className="mt-4 rounded-3xl bg-soft p-5">
-        <p className="text-sm text-sub">내 카드 가치</p>
-        <p className="mt-1 text-3xl font-extrabold tracking-tight">{won(value)}</p>
-        <p className="mt-1 text-sm text-sub">
-          {total.toLocaleString()}장 · {kinds}종 · 세트 {started.length}개 수집 중
-        </p>
-        <p className="mt-2 text-xs text-sub">일본판 유유테이 판매가를 오늘 환율로 환산한 값이에요.</p>
-      </section>
-
-      <section className="mt-6">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-lg font-bold">채우는 중인 세트</h2>
-          <Link href="/dex" className="text-sm text-sub">
+    <main className="space-y-3 bg-soft px-4 py-4">
+      <section className="rounded-3xl bg-white p-5">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-[15px] font-semibold text-ink2">내 카드 가치</p>
+            <p className="mt-1 text-[28px] font-extrabold tracking-tight">{won(value)}</p>
+            <p className="text-[13px] text-sub">
+              {total.toLocaleString()}장 · {ids.length}종
+            </p>
+          </div>
+          <Link href="/dex" className="rounded-lg bg-soft px-3 py-2 text-[13px] font-semibold text-ink2">
             전체 보기
           </Link>
         </div>
-        {started.length === 0 ? (
-          <p className="mt-2 rounded-xl bg-soft p-4 text-sm text-sub">도감에서 가진 카드를 체크하면 여기에 진행률이 보여요.</p>
+        {top.length > 0 ? (
+          <>
+            <p className="mt-5 text-[13px] text-sub">가치 순</p>
+            <ul className="mt-2 space-y-3">
+              {top.map((c) => (
+                <li key={c.id}>
+                  <Link href={`/dex/${c.setId}/${c.id}`} className="flex items-center gap-3">
+                    <img src={`${c.image}?w=120`} alt="" className="h-14 w-10 rounded object-cover" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[15px] font-bold">
+                        {c.name} <span className="text-brand">한글판</span>
+                      </p>
+                      <p className="truncate text-[13px] text-sub">
+                        {owned[c.id]}장 · {c.setName}
+                      </p>
+                    </div>
+                    <span className="text-[15px] font-bold">{prices[c.id] ? won(prices[c.id] * owned[c.id]) : "-"}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
         ) : (
-          <ul className="mt-2 space-y-2">
-            {started.slice(0, 6).map((s) => (
-              <SetRow key={s.id} set={s} have={per[s.id]} />
-            ))}
-          </ul>
+          <p className="mt-4 rounded-xl bg-soft p-4 text-[13px] text-sub">도감에서 가진 카드를 채우거나 가운데 스캔 버튼으로 카드를 찍어 보세요.</p>
         )}
       </section>
 
-      <section className="mt-6 pb-6">
-        <h2 className="text-lg font-bold">최신 세트</h2>
-        <ul className="mt-2 space-y-2">
-          {fresh.map((s) => (
-            <SetRow key={s.id} set={s} have={per[s.id] ?? 0} />
-          ))}
-        </ul>
-      </section>
+      {[...started, ...suggest].map((s) => {
+        const have = per[s.id] ?? 0;
+        const pct = Math.round((have / s.total) * 100);
+        return (
+          <Link key={s.id} href={`/dex/${s.id}`} className="flex items-center gap-3 rounded-3xl bg-white p-4">
+            <img src={`${s.cover}?w=120`} alt="" className="h-14 w-10 rounded object-cover" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px] font-bold">{s.short}</p>
+              <p className="text-[13px] text-sub">
+                {have}/{s.total}
+              </p>
+              <div className="mt-1.5 flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-soft">
+                  <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
+                </div>
+                <span className="text-[12px] font-bold text-brand">{pct}%</span>
+              </div>
+            </div>
+            <span className="rounded-lg border border-line px-3 py-2 text-[13px] font-semibold">채우기</span>
+          </Link>
+        );
+      })}
     </main>
-  );
-}
-
-function SetRow({ set, have }: { set: SetSummary; have: number }) {
-  return (
-    <li>
-      <Link href={`/dex/${set.id}`} className="flex items-center gap-3 rounded-2xl border border-line p-3">
-        <img src={`${set.cover}?w=120`} alt="" className="h-14 w-10 rounded object-cover" loading="lazy" />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold">{set.name}</p>
-          <p className="text-xs text-sub">
-            {have}/{set.total}
-          </p>
-          <div className="mt-1">
-            <Progress have={have} total={set.total} />
-          </div>
-        </div>
-        <span className="rounded-lg bg-soft px-2.5 py-1.5 text-xs font-semibold">채우기</span>
-      </Link>
-    </li>
   );
 }
