@@ -62,28 +62,25 @@ npx tsx scripts/hash-cards.ts
 
 카드를 새로 모은 뒤 실행하면 사진 인식용 지문(`data/prints.json`)이 갱신됩니다. 정확도 확인: `npx tsx lib/fingerprint.check.ts`
 
-## 고정 주소 (Cloudflare 고정 터널)
+## 고정 주소 (Tailscale Funnel, 무료)
 
-Cloudflare 무료 계정과 도메인 하나가 필요합니다. 도메인을 Cloudflare에 추가해 둔 뒤:
-
-```bash
-sh scripts/setup-tunnel.sh poka.내도메인.com
-```
-
-이후에는 pm2로 서버와 터널을 함께 켜 둡니다.
+1. 맥에 Tailscale 앱을 설치하고 로그인 (tailscale.com/download)
+2. 서버를 켜 두고 외부 공개:
 
 ```bash
 npm run build
-npx pm2 start ecosystem.config.cjs
-npx pm2 save
+npx pm2 start ecosystem.config.cjs && npx pm2 save
+/Applications/Tailscale.app/Contents/MacOS/Tailscale funnel --bg 3000
 ```
+
+처음 한 번은 Funnel 사용 승인 링크가 나오니 브라우저에서 승인합니다. 주소는 `https://맥이름.tailnet이름.ts.net` 형태로 고정되고, `--bg`라 재부팅 후에도 유지됩니다. 이 주소를 `.env.local`에 `APP_URL=https://...ts.net`로 넣습니다.
 
 ## 카카오 로그인
 
 1. developers.kakao.com → 내 애플리케이션 → 애플리케이션 추가
 2. 앱 키의 **REST API 키**를 `.env.local`에 `KAKAO_REST_API_KEY=...`로 넣기
-3. 플랫폼 → Web → 사이트 도메인에 `https://poka.내도메인.com` 등록
-4. 카카오 로그인 → 활성화, Redirect URI에 `https://poka.내도메인.com/api/auth/kakao/callback` 등록
+3. 플랫폼 → Web → 사이트 도메인에 `https://맥이름.tailnet이름.ts.net` 등록
+4. 카카오 로그인 → 활성화, Redirect URI에 `https://맥이름.tailnet이름.ts.net/api/auth/kakao/callback` 등록
 5. 동의항목 → 닉네임, 프로필 사진 사용
 6. (선택) 보안 → Client Secret을 켰다면 `KAKAO_CLIENT_SECRET=...` 추가
 7. `npm run build` 후 서버 재시작
@@ -92,13 +89,11 @@ npx pm2 save
 
 ## 다른 맥(예: 회사 맥)으로 서버 옮기기
 
-1. 새 맥에 Node 22와 git 설치 후 저장소 받기: `gh repo clone wodus1201/pkmTCGFinder && cd pkmTCGFinder && npm install`
-2. 지금 맥에서 아래를 새 맥의 같은 위치로 복사 (AirDrop 등)
-   - `data/` 폴더 전체: 카드 데이터, 계정·도감, 알림 구독, **VAPID 키(`vapid.json`)**, **로그인 서명 키(`auth-secret.txt`)**. 이 두 키가 바뀌면 기존 알림 구독과 로그인이 모두 풀립니다.
-   - `.env.local`
-   - `~/.cloudflared/` 폴더 (터널 인증서와 `pokafinder` 터널 자격 증명)
-3. 지금 맥에서 서버와 터널 끄기: `npx pm2 delete all` (또는 실행 중인 터미널 종료)
-4. 새 맥에서 `npm run build && npx pm2 start ecosystem.config.cjs && npx pm2 save`
-5. 재부팅 후 자동 실행: `npx pm2 startup`이 알려주는 명령을 한 번 실행
+1. 새 맥에 Node 22, git, Tailscale 설치 후 같은 Tailscale 계정으로 로그인
+2. 저장소 받기: `gh repo clone wodus1201/pkmTCGFinder && cd pkmTCGFinder && npm install`
+3. 지금 맥에서 `data/` 폴더 전체와 `.env.local`을 새 맥의 같은 위치로 복사 (AirDrop 등). `data/`에는 카드 데이터, 계정·도감, 알림 구독, **VAPID 키(`vapid.json`)**, **로그인 서명 키(`auth-secret.txt`)**가 들어 있어서, 바뀌면 알림 구독과 로그인이 풀립니다.
+4. 지금 맥: `npx pm2 delete all`, `Tailscale funnel --bg off`, 그리고 Tailscale 관리 화면(login.tailscale.com/admin/machines)에서 지금 맥의 이름을 다른 이름으로 바꾸기
+5. 새 맥: 관리 화면에서 새 맥 이름을 지금 맥이 쓰던 이름으로 바꾼 뒤 `npm run build && npx pm2 start ecosystem.config.cjs && npx pm2 save && Tailscale funnel --bg 3000`
+6. 재부팅 후 자동 실행: `npx pm2 startup`이 알려주는 명령을 한 번 실행
 
-주소(`poka.내도메인.com`)와 카카오 설정은 그대로라서 폰에서는 아무것도 바꿀 필요가 없습니다. 같은 터널을 두 맥에서 동시에 켜면 요청이 양쪽으로 나뉘니 한쪽만 켜 두세요.
+맥 이름을 넘겨받으면 주소(`*.ts.net`)가 그대로라서 카카오 설정과 폰 홈 화면 앱을 바꿀 필요가 없습니다.
