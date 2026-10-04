@@ -1,15 +1,12 @@
 "use client";
 
 import { logout, useCollection, useMe } from "@/lib/collection";
-import { Slide } from "../ui";
 
 export default function MePage() {
   const { user, ready } = useMe();
   const { owned } = useCollection();
   const total = Object.values(owned).reduce((a, b) => a + b, 0);
-  return (
-    <Slide>
-      <main className="px-5 pt-6">
+  return <main className="px-5 pt-6">
         {ready && !user && <p className="text-[15px] text-sub">로그인이 필요해요.</p>}
         {user && (
           <>
@@ -28,7 +25,5 @@ export default function MePage() {
             </button>
           </>
         )}
-      </main>
-    </Slide>
-  );
+      </main>;
 }

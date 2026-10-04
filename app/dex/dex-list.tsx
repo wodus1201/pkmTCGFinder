@@ -6,6 +6,7 @@ import type { SetSummary } from "@/lib/cards";
 import { useCollection } from "@/lib/collection";
 import { Chips, Search } from "../ui";
 import { img } from "@/lib/img";
+import { setNavDir } from "@/lib/nav";
 
 export function ownedPerSet(owned: Record<string, number>) {
   const per: Record<string, number> = {};
@@ -48,7 +49,7 @@ export default function DexList({ sets }: { sets: SetSummary[] }) {
               <ul className="mt-3 grid grid-cols-2 gap-3">
                 {list.map((x) => (
                   <li key={x.id}>
-                    <Link href={`/dex/${x.id}`} transitionTypes={["nav-forward"]} className="block overflow-hidden rounded-xl border border-line">
+                    <Link href={`/dex/${x.id}`} onClick={() => setNavDir("forward")} className="block overflow-hidden rounded-xl border border-line">
                       <div className="flex h-36 items-center justify-center overflow-hidden px-3 py-2">
                         {x.pack ? (
                           <img src={img(x.pack, 384)} alt="" className="max-h-full max-w-full object-contain" loading="lazy" />

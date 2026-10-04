@@ -7,6 +7,7 @@ import type { Card } from "@/lib/cards";
 import { useCollection, usePrices, won } from "@/lib/collection";
 import { Back, CardTile, Underline } from "../../../ui";
 import { img } from "@/lib/img";
+import { setNavDir } from "@/lib/nav";
 
 const RARITY: Record<string, string> = {
   C: "커먼",
@@ -46,7 +47,11 @@ export default function CardView({
   const at = order.indexOf(card.id);
   const prev = at > 0 ? order[at - 1] : null;
   const next = at >= 0 && at < order.length - 1 ? order[at + 1] : null;
-  const go = (id: string | null) => id && router.replace(`/dex/${setId}/${id}`, { scroll: false });
+  const go = (id: string | null) => {
+    if (!id) return;
+    setNavDir(id === next ? "forward" : "back");
+    router.replace(`/dex/${setId}/${id}`, { scroll: false });
+  };
   useEffect(() => {
     for (const id of [prev, next]) if (id) router.prefetch(`/dex/${setId}/${id}`);
   }, [prev, next, setId, router]);
@@ -165,7 +170,7 @@ export default function CardView({
 
       <div className="mt-10 flex items-baseline justify-between">
         <h2 className="text-[17px] font-bold">같은 세트의 다른 카드</h2>
-        <Link href={`/dex/${setId}`} className="text-sm text-sub">
+        <Link href={`/dex/${setId}`} onClick={() => setNavDir("back")} className="text-sm text-sub">
           전체 보기 →
         </Link>
       </div>
