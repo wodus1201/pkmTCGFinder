@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #2557f5;
+  --color-ink: #111827;
+  --color-sub: #6b7280;
+  --color-line: #eef0f3;
+  --color-soft: #f5f6f8;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+body {
+  background: var(--color-soft);
+  color: var(--color-ink);
+}
