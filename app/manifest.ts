@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "포카파인더",
     short_name: "포카파인더",
     description: "내 주변 편의점 포켓몬 카드 재고 알림",
-    start_url: "/stock",
+    start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#ffffff",
