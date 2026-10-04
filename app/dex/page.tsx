@@ -1,5 +1,9 @@
-import ComingSoon from "../coming-soon";
+import { allSets, summarize } from "@/lib/cards";
+import DexList from "./dex-list";
 
-export default function Page() {
-  return <ComingSoon title="도감" />;
+export const dynamic = "force-dynamic";
+
+export default async function Page() {
+  const sets = (await allSets()).map(summarize);
+  return <DexList sets={sets} />;
 }

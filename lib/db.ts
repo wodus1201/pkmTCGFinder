@@ -8,7 +8,18 @@ export type Subscriber = {
   places: Place[]; // "here"는 앱을 마지막으로 연 위치, 나머지는 사용자가 저장한 관심 지역
   seen: string[]; // 이미 알린 "매장코드:상품코드" (재고가 0이 되면 빠지고, 다시 생기면 또 알림)
 };
-type Db = { subscribers: Subscriber[] };
+export type Post = {
+  id: string;
+  kind: "sell" | "buy";
+  title: string;
+  price: number | null;
+  body: string;
+  contact: string;
+  card: { id: string; name: string; image: string } | null;
+  createdAt: number;
+  owner: string; // 글쓴이 브라우저의 임의 토큰. 본인 글 삭제 확인용이라 목록 응답에는 넣지 않는다.
+};
+type Db = { subscribers: Subscriber[]; posts?: Post[] };
 
 const FILE = "data/db.json";
 let queue = Promise.resolve();
@@ -35,3 +46,4 @@ export function update<T>(fn: (db: Db) => T): Promise<T> {
 }
 
 export const subscribers = () => read().then((db) => db.subscribers);
+export const posts = () => read().then((db) => db.posts ?? []);
