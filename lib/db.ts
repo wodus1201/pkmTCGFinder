@@ -21,7 +21,7 @@ export type Post = {
   createdAt: number;
   owner: string; // 글쓴이 브라우저의 임의 토큰. 본인 글 삭제 확인용이라 목록 응답에는 넣지 않는다.
 };
-type Db = { subscribers: Subscriber[]; posts?: Post[] };
+type Db = { subscribers: Subscriber[]; posts?: Post[]; collection?: Record<string, number> };
 
 const FILE = "data/db.json";
 let queue = Promise.resolve();
@@ -49,3 +49,4 @@ export function update<T>(fn: (db: Db) => T): Promise<T> {
 
 export const subscribers = () => read().then((db) => db.subscribers);
 export const posts = () => read().then((db) => db.posts ?? []);
+export const collection = () => read().then((db) => db.collection ?? {});
