@@ -86,7 +86,12 @@ export default function StockPage() {
     if (!navigator.geolocation) return setGeoError("이 브라우저는 위치를 지원하지 않아요.");
     navigator.geolocation.getCurrentPosition(
       (p) => setHere({ lat: p.coords.latitude, lng: p.coords.longitude }),
-      () => setGeoError("위치 권한을 허용하면 내 주변 재고를 보여드릴게요."),
+      (e) =>
+        setGeoError(
+          e.code === e.PERMISSION_DENIED
+            ? "위치 권한이 막혀 있어요. 아이폰은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹 사이트를 \"앱을 사용하는 동안\"으로 바꾼 뒤 새로고침해 주세요."
+            : "위치를 찾지 못했어요. 잠시 후 \"내 위치 찾기\"를 다시 눌러 주세요.",
+        ),
       { enableHighAccuracy: true, timeout: 10000 },
     );
   }
