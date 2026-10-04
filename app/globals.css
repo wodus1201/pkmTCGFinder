@@ -16,3 +16,61 @@ body {
   background: #fff;
   color: var(--color-ink);
 }
+
+/* 페이지 전환 (app/ui.tsx Slide) */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -60px;
+  animation: 150ms ease-in both vt-fade reverse, 350ms ease-in-out both vt-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 60px;
+  animation: 200ms ease-out 100ms both vt-fade, 350ms ease-in-out both vt-slide;
+}
+::view-transition-old(.nav-back) {
+  --slide-offset: 60px;
+  animation: 150ms ease-in both vt-fade reverse, 350ms ease-in-out both vt-slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -60px;
+  animation: 200ms ease-out 100ms both vt-fade, 350ms ease-in-out both vt-slide;
+}
+::view-transition-old(.fade-out) {
+  animation: 120ms ease-in both vt-fade reverse;
+}
+::view-transition-new(.fade-in) {
+  animation: 180ms ease-out both vt-fade;
+}
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+/* 헤더와 하단 탭은 전환 중에도 제자리 */
+::view-transition-group(site-header),
+::view-transition-group(tab-bar) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header),
+::view-transition-old(tab-bar) {
+  display: none;
+}
+::view-transition-new(site-header),
+::view-transition-new(tab-bar) {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

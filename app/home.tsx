@@ -50,7 +50,7 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
             <ul className="mt-2 space-y-3">
               {top.map((c) => (
                 <li key={c.id}>
-                  <Link href={`/dex/${c.setId}/${c.id}`} className="flex items-center gap-3">
+                  <Link href={`/dex/${c.setId}/${c.id}`} transitionTypes={["nav-forward"]} className="flex items-center gap-3">
                     <img src={img(c.image, 120)} alt="" className="h-14 w-10 rounded object-cover" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[15px] font-bold">
@@ -75,7 +75,7 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
         const have = per[s.id] ?? 0;
         const pct = Math.round((have / s.total) * 100);
         return (
-          <Link key={s.id} href={`/dex/${s.id}`} className="flex items-center gap-3 rounded-3xl bg-white p-4">
+          <Link key={s.id} href={`/dex/${s.id}`} transitionTypes={["nav-forward"]} className="flex items-center gap-3 rounded-3xl bg-white p-4">
             <img src={img(s.pack || s.cover, 128)} alt="" className="h-14 w-10 rounded object-contain" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[15px] font-bold">{s.short}</p>

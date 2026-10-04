@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ViewTransition } from "react";
 import { img } from "@/lib/img";
 
 // dogam.app 화면에서 반복되는 조각들
@@ -14,7 +15,7 @@ export function Back({ href }: { href?: string }) {
     </svg>
   );
   return href ? (
-    <Link href={href} aria-label="뒤로" className="-ml-1 inline-block py-2">
+    <Link href={href} transitionTypes={["nav-back"]} aria-label="뒤로" className="-ml-1 inline-block py-2">
       {arrow}
     </Link>
   ) : (
@@ -94,12 +95,28 @@ export function CardTile({
     </>
   );
   return href ? (
-    <Link href={href} className="block">
+    <Link href={href} transitionTypes={["nav-forward"]} className="block">
       {body}
     </Link>
   ) : (
     <button onClick={onClick} className="block w-full">
       {body}
     </button>
+  );
+}
+
+/**
+ * 페이지 전환 애니메이션. 깊이 들어가는 링크(transitionTypes nav-forward)는 오른쪽에서 밀려 들어오고,
+ * 뒤로(nav-back)는 왼쪽에서, 탭 이동처럼 타입이 없는 이동은 살짝 페이드한다.
+ */
+export function Slide({ children }: { children: React.ReactNode }) {
+  return (
+    <ViewTransition
+      enter={{ "nav-forward": "nav-forward", "nav-back": "nav-back", default: "fade-in" }}
+      exit={{ "nav-forward": "nav-forward", "nav-back": "nav-back", default: "fade-out" }}
+      default="none"
+    >
+      {children}
+    </ViewTransition>
   );
 }

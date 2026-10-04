@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="antialiased">
         <div className="mx-auto min-h-dvh max-w-md pb-[calc(72px+env(safe-area-inset-bottom))]">
-          <header className="sticky top-[env(safe-area-inset-top)] z-[900] flex h-14 items-center justify-between border-b border-line bg-white px-5">
+          <header style={{ viewTransitionName: "site-header" }} className="sticky top-[env(safe-area-inset-top)] z-[900] flex h-14 items-center justify-between border-b border-line bg-white px-5">
             <Link href="/" className="text-[22px] font-black italic tracking-tight text-brand">
               포카파인더
             </Link>

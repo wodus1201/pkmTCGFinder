@@ -21,7 +21,7 @@ const tabs = [
 export default function TabBar() {
   const pathname = usePathname();
   return (
-    <nav aria-label="주요 화면" className="fixed inset-x-0 bottom-0 z-[1000] mx-auto max-w-md rounded-t-3xl border border-b-0 border-line bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav aria-label="주요 화면" style={{ viewTransitionName: "tab-bar" }} className="fixed inset-x-0 bottom-0 z-[1000] mx-auto max-w-md rounded-t-3xl border border-b-0 border-line bg-white pb-[env(safe-area-inset-bottom)]">
       <ul className="flex h-[53px]">
         {tabs.map((t) => {
           const active = t.href === "/" ? pathname === "/" : pathname.startsWith(t.href);
