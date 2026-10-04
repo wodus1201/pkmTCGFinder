@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { SetSummary } from "@/lib/cards";
 import { useCollection } from "@/lib/collection";
 import { Chips, Search } from "../ui";
+import { img } from "@/lib/img";
 
 export function ownedPerSet(owned: Record<string, number>) {
   const per: Record<string, number> = {};
@@ -50,9 +51,9 @@ export default function DexList({ sets }: { sets: SetSummary[] }) {
                     <Link href={`/dex/${x.id}`} className="block overflow-hidden rounded-xl border border-line">
                       <div className="flex h-36 items-center justify-center overflow-hidden px-3 py-2">
                         {x.pack ? (
-                          <img src={x.pack} alt="" className="max-h-full max-w-full object-contain" loading="lazy" />
+                          <img src={img(x.pack, 384)} alt="" className="max-h-full max-w-full object-contain" loading="lazy" />
                         ) : (
-                          <img src={`${x.cover}?w=200`} alt="" className="h-full rounded-md object-contain" loading="lazy" />
+                          <img src={img(x.cover, 200)} alt="" className="h-full rounded-md object-contain" loading="lazy" />
                         )}
                       </div>
                       <div className="border-t border-line bg-soft px-4 py-3">

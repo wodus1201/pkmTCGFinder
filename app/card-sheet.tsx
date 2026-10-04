@@ -1,6 +1,7 @@
 "use client";
 
 import type { Card } from "@/lib/cards";
+import { img } from "@/lib/img";
 
 export function Progress({ have, total }: { have: number; total: number }) {
   const pct = total ? Math.round((have / total) * 100) : 0;
@@ -37,7 +38,7 @@ export default function CardSheet({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line" />
-        <img src={`${card.image}?w=512`} alt={card.name} className="mx-auto w-56 rounded-xl shadow-lg" />
+        <img src={img(card.image, 512)} alt={card.name} className="mx-auto w-56 rounded-xl shadow-lg" />
         <h2 className="mt-4 text-xl font-extrabold">{card.name}</h2>
         <p className="text-sm text-sub">
           {setName ? `${setName} · ` : ""}

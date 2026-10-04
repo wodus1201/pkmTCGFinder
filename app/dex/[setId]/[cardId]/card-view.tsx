@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Card } from "@/lib/cards";
 import { useCollection, usePrices, won } from "@/lib/collection";
 import { Back, CardTile, Underline } from "../../../ui";
+import { img } from "@/lib/img";
 
 const RARITY: Record<string, string> = {
   C: "커먼",
@@ -92,7 +93,7 @@ export default function CardView({
     <main className="px-5 pt-3">
       <Back />
       <div className="mt-2 flex items-center gap-4">
-        <img src={`${card.image}?w=120`} alt="" className="h-[60px] rounded" />
+        <img src={img(card.image, 120)} alt="" className="h-[60px] rounded" />
         <div>
           <h1 className="text-[22px] font-bold">{card.name} 한글판</h1>
           <p className="text-[15px] text-sub">
@@ -122,7 +123,7 @@ export default function CardView({
         <>
           <div className="relative mt-6 select-none" {...swipe}>
             <img
-              src={`${card.image}?w=640`}
+              src={img(card.image, 640)}
               alt={card.name}
               draggable={false}
               style={{ transform: `translateX(${drag}px) rotate(${drag / 40}deg)`, transition: drag ? "none" : "transform .2s" }}

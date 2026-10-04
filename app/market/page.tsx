@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Post } from "@/lib/db";
 import { Search, Underline } from "../ui";
+import { img } from "@/lib/img";
 
 type Item = Omit<Post, "owner">;
 type Hit = { id: string; name: string; image: string; number: string; setName: string };
@@ -75,7 +76,7 @@ export default function MarketPage() {
                 <span className={`font-bold ${p.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{p.kind === "sell" ? "판매" : "구매"}</span>
               </span>
               <span className="mt-2 flex h-36 items-center justify-center rounded-lg bg-soft">
-                {p.card?.image ? <img src={`${p.card.image}?w=240`} alt="" className="h-32 rounded" /> : <span className="text-xs text-faint">이미지 없음</span>}
+                {p.card?.image ? <img src={img(p.card.image, 240)} alt="" className="h-32 rounded" /> : <span className="text-xs text-faint">이미지 없음</span>}
               </span>
               <span className="mt-2 block truncate text-[14px] font-medium">{p.title}</span>
               <span className="block truncate text-[13px] text-sub">{p.card?.name ?? "카드 미지정"}</span>
@@ -96,7 +97,7 @@ export default function MarketPage() {
           <div className="w-full max-w-md rounded-t-3xl bg-white p-5 pb-[calc(20px+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line" />
             <div className="flex gap-4">
-              {open.card?.image && <img src={`${open.card.image}?w=300`} alt="" className="w-28 rounded-lg" />}
+              {open.card?.image && <img src={img(open.card.image, 300)} alt="" className="w-28 rounded-lg" />}
               <div className="min-w-0">
                 <p className={`text-[13px] font-bold ${open.kind === "sell" ? "text-brand" : "text-orange-500"}`}>{open.kind === "sell" ? "팝니다" : "삽니다"}</p>
                 <p className="text-[18px] font-bold">{open.title}</p>
@@ -204,7 +205,7 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
         </div>
         {card ? (
           <div className="flex items-center gap-3 rounded-xl border border-line p-2">
-            <img src={`${card.image}?w=120`} alt="" className="h-14 w-10 rounded object-cover" />
+            <img src={img(card.image, 120)} alt="" className="h-14 w-10 rounded object-cover" />
             <p className="flex-1 text-sm font-semibold">
               {card.name}
               <span className="block text-xs font-normal text-sub">
@@ -223,7 +224,7 @@ function Compose({ onClose, onDone }: { onClose: () => void; onDone: (id: string
                 {hits.map((h) => (
                   <li key={h.id}>
                     <button type="button" onClick={() => setCard(h)} className="w-full text-left">
-                      <img src={`${h.image}?w=200`} alt={h.name} className="aspect-[63/88] w-full rounded-md object-cover" />
+                      <img src={img(h.image, 200)} alt={h.name} className="aspect-[63/88] w-full rounded-md object-cover" />
                       <span className="block truncate text-[10px] text-sub">{h.number} {h.name}</span>
                     </button>
                   </li>

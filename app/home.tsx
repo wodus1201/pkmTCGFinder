@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Card, SetSummary } from "@/lib/cards";
 import { useCollection, usePrices, won } from "@/lib/collection";
 import { ownedPerSet } from "./dex/dex-list";
+import { img } from "@/lib/img";
 
 type Owned = Card & { setName: string };
 
@@ -50,7 +51,7 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
               {top.map((c) => (
                 <li key={c.id}>
                   <Link href={`/dex/${c.setId}/${c.id}`} className="flex items-center gap-3">
-                    <img src={`${c.image}?w=120`} alt="" className="h-14 w-10 rounded object-cover" />
+                    <img src={img(c.image, 120)} alt="" className="h-14 w-10 rounded object-cover" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[15px] font-bold">
                         {c.name} <span className="text-brand">한글판</span>
@@ -75,7 +76,7 @@ export default function Home({ sets }: { sets: SetSummary[] }) {
         const pct = Math.round((have / s.total) * 100);
         return (
           <Link key={s.id} href={`/dex/${s.id}`} className="flex items-center gap-3 rounded-3xl bg-white p-4">
-            <img src={s.pack || `${s.cover}?w=120`} alt="" className="h-14 w-10 rounded object-contain" />
+            <img src={img(s.pack || s.cover, 128)} alt="" className="h-14 w-10 rounded object-contain" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[15px] font-bold">{s.short}</p>
               <p className="text-[13px] text-sub">

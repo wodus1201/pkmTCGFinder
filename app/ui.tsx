@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { img } from "@/lib/img";
 
 // dogam.app 화면에서 반복되는 조각들
 
@@ -85,7 +86,7 @@ export function CardTile({
   const body = (
     <>
       <span className="relative block">
-        <img src={`${image}?w=300`} alt={name} loading="lazy" className={`aspect-[63/88] w-full rounded-lg bg-soft object-cover ${dim ? "opacity-35 grayscale" : ""}`} />
+        <img src={img(image, 256)} alt={name} loading="lazy" className={`aspect-[63/88] w-full rounded-lg bg-soft object-cover ${dim ? "opacity-35 grayscale" : ""}`} />
         {badge}
       </span>
       <span className="mt-2 block truncate text-center text-[15px] font-semibold">{name}</span>
